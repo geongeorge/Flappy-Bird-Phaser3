@@ -45,7 +45,7 @@ function create ()
     this.anims.create({
         key: 'flap',
         frames: this.anims.generateFrameNumbers('birdy', { start: 0, end: 3 }),
-        frameRate: 10,
+        frameRate: 20,
         repeat: 0
     });
 
@@ -59,14 +59,14 @@ function create ()
     this.input.keyboard.on('keydown-' + 'SPACE', flapNow);
 
     //  Stop the following keys from propagating up to the browser
-    // this.input.keyboard.addKeyCapture([Phaser.Input.Keyboard.KeyCodes.SPACEBAR ]);
+    // this.input.keyboard.addKeyCapture([Phaser.Input.Keyboard.KeyCodes.SPACE ]);
 }
 
 function update ()
 {
-    if(spacebar.isDown) {
-        console.log("pressed space")
-    }
+    // if(spacebar.isDown) {
+        // console.log("pressed space")
+    // }
 }
 
 function flapNow(){
