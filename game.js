@@ -44,7 +44,7 @@ function create ()
 
     this.anims.create({
         key: 'flap',
-        frames: this.anims.generateFrameNumbers('birdy', { start: 0, end: 2 }),
+        frames: this.anims.generateFrameNumbers('birdy', { start: 0, end: 3 }),
         frameRate: 10,
         repeat: 0
     });
