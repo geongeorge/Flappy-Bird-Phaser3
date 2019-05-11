@@ -17,7 +17,8 @@ var config = {
 };
 const pipeWidth = 52;
 var game = new Phaser.Game(config);
-
+var isPaused = false,
+    gameOver = false;
 function preload ()
 {
     this.load.image('sky', 'assets/sky.png');
@@ -31,9 +32,6 @@ function preload ()
 }
 var platforms,spacebar,player;
 var gap = 150;
-function playerDead() {
-    console.log("Player dead!!!!!!!!!")
-}
 function create ()
 {
     this.add.image(400, 300, 'sky');
@@ -115,11 +113,21 @@ function update ()
             }
         }
     });
+
+    if(!gameOver && player.y < game.canvas.height+50) {
+        gameOver= true;
+
+    }
 }
 
 function flapNow(){
+    if(isPaused) return;
     console.log("flap")
     player.setVelocityY(-330);
     player.anims.play('flap', true);
 }
-
+function playerDead() {
+    console.log("Player dead!!!!!!!!!")
+    player.setCollideWorldBounds(false);
+    isPaused =  true;
+}
