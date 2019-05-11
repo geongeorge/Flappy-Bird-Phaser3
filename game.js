@@ -31,11 +31,15 @@ function preload ()
 }
 var platforms,spacebar,player;
 var gap = 150;
-
+function playerDead() {
+    console.log("Player dead!!!!!!!!!")
+}
 function create ()
 {
     this.add.image(400, 300, 'sky');
 //    this.add.image(400, 300, 'star');
+    // this.physics.world.setBoundsCollision(true, true, true, false);
+    
     platforms = this.physics.add.staticGroup();
     // bottom placable at 260+gap to height
     let pos = getRandom();
@@ -59,7 +63,7 @@ function create ()
 
     player.body.setGravityY(300)
 
-    this.physics.add.collider(player, platforms)
+    this.physics.add.collider(player, platforms, playerDead, null, game)
 
 
     spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
@@ -91,6 +95,7 @@ function update ()
     let children = platforms.getChildren();
     children.forEach((child) => {
         if (child instanceof Phaser.GameObjects.Sprite) {
+            child.refreshBody();
             child.x += -3;
             if(child.x <= -50) {
                 countpipe+=1;
@@ -117,3 +122,4 @@ function flapNow(){
     player.setVelocityY(-330);
     player.anims.play('flap', true);
 }
+
