@@ -15,14 +15,14 @@ var config = {
         update: update
     }
 };
-
+const pipeWidth = 52;
 var game = new Phaser.Game(config);
 
 function preload ()
 {
     this.load.image('sky', 'assets/sky.png');
-    this.load.image('star', 'assets/star.png');
-    this.load.image('pipe', 'assets/pipe.png');
+    // this.load.image('star', 'assets/star.png');
+    this.load.image('pipe', 'assets/pipe2.png');
     this.load.spritesheet('birdy', 
         'assets/birdy.png',
         { frameWidth: 34, frameHeight: 24 }
@@ -30,12 +30,17 @@ function preload ()
 }
 var platforms,spacebar,player;
 
+
 function create ()
 {
     this.add.image(400, 300, 'sky');
-    this.add.image(400, 300, 'star');
+//    this.add.image(400, 300, 'star');
     platforms = this.physics.add.staticGroup();
-    platforms.create(400, 568, 'pipe').setScale(2).refreshBody();
+
+    // platforms.setAll('body.immovable', true);
+    // platforms.setAll('body.velocity.x', 100);
+    platforms.create(game.canvas.width*1.5, getRandom(), 'pipe').setScale(1).refreshBody();
+    platforms.create(game.canvas.width*2, getRandom(), 'pipe').setScale(1).refreshBody();
 
     player = this.physics.add.sprite(100, 450, 'birdy');
 
@@ -62,11 +67,32 @@ function create ()
     // this.input.keyboard.addKeyCapture([Phaser.Input.Keyboard.KeyCodes.SPACE ]);
 }
 
+function getRandom() {
+    let min = Math.ceil(100);
+    let max = Math.floor(game.canvas.height-100);
+    let ran =  Math.floor(Math.random() * (max - min + 1)) + min;
+    console.log(ran)
+    return ran
+}
+
 function update ()
 {
     // if(spacebar.isDown) {
         // console.log("pressed space")
     // }
+    //platforms.setAll('body.velocity.x', -100);
+    let children = platforms.getChildren();
+    children.forEach((child) => {
+        if (child instanceof Phaser.GameObjects.Sprite) {
+            child.x += -3;
+
+            if(child.x <= -50) {
+                console.log("Replacing child")
+                child.x = game.canvas.width+pipeWidth;
+                child.y = getRandom();
+            }
+        }
+    });
 }
 
 function flapNow(){
