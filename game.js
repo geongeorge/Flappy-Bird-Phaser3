@@ -5,13 +5,13 @@ var config = {
     type: Phaser.AUTO,
     width: gameWidth,
     height: gameHeight,
-    // scale: {
-    //     mode: Phaser.Scale.FIT,
-    //     parent: 'phaser-example',
-    //     autoCenter: Phaser.Scale.CENTER_BOTH,
-    //     width: gameWidth,
-    //     height: gameHeight
-    // },
+    scale: {
+        mode: Phaser.Scale.FIT,
+        parent: 'phaser-example',
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        // width: gameWidth,
+        // height: gameHeight
+    },
     physics: {
         default: 'arcade',
         arcade: {
@@ -31,6 +31,7 @@ var isPaused = false,
     gameOver = false;
 var score = 0;
 var birdyX = (gameWidth/2)-50;
+var birdyY = (gameHeight/2)-50;
 function preload ()
 {
     this.load.image('sky', 'assets/sky.png');
@@ -54,26 +55,16 @@ var music;
 function create ()
 {
     // this.add.image(400, 300, 'sky');
-    this.cameras.main.setBackgroundColor(0x1fbde0)
+    var colors = ["0x1fbde0","0x0a4957","0x08272e"];
+    var randColor = colors[Math.floor(Math.random() * colors.length)];
+    this.cameras.main.setBackgroundColor(randColor)
 
-    var texture = this.textures.createCanvas('gradient', 16, 256);
-var context = texture.getContext();
-var grd = context.createLinearGradient(0, 0, 0, 256);    // ERROR LINE
 
-grd.addColorStop(0, '#8ED6FF');
-grd.addColorStop(1, '#004CB3');
-
-context.fillStyle = grd;
-context.fillRect(0, 0, 16, 256);﻿
-
-//  Call this if running under WebGL, or you'll see nothing change
-texture.refresh();
-    // this.stage.backgroundColor = "#0c9fc7";
 //    this.add.image(400, 300, 'star');
     // this.physics.world.setBoundsCollision(true, true, true, false);
 
     //Add score text
-    scoreText = this.add.text(birdyX, 100,score,{ fontFamily: '"04b19"', fontSize: 60, color: '#fff' });
+    scoreText = this.add.text(birdyX, (gameHeight/4),score,{ fontFamily: '"04b19"', fontSize: 60, color: '#fff' });
     
     platforms = this.physics.add.staticGroup();
     var pipePos = gameWidth+2*xGap
@@ -82,7 +73,7 @@ texture.refresh();
     platforms.create(pipePos, pos[0], 'pipeb').setScale(1).refreshBody();
     platforms.create(pipePos, pos[1], 'pipet').setScale(1).refreshBody();
 
-    player = this.physics.add.sprite(birdyX, 450, 'birdy');
+    player = this.physics.add.sprite(birdyX, birdyY, 'birdy');
 
     player.setBounce(0.2);
     player.setCollideWorldBounds(true);
@@ -101,13 +92,20 @@ texture.refresh();
     this.physics.add.collider(player, platforms, playerHit, null, game)
 
 
+    //  Stop the following keys from propagating up to the browser
+    // this.input.keyboard.addKeyCapture([Phaser.Input.Keyboard.KeyCodes.SPACE ]);
+
+    //
+
+    // this.scene.pause("default");
+    // isPaused = true;
+    // pause(this)
+
+
     spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     // spacebar.onDown.add(flapNow, this);
     this.input.keyboard.on('keydown-' + 'SPACE', flapNow);
     this.input.on('pointerdown', flapNow); //touch support
-
-    //  Stop the following keys from propagating up to the browser
-    // this.input.keyboard.addKeyCapture([Phaser.Input.Keyboard.KeyCodes.SPACE ]);
 
 }
 
@@ -184,6 +182,8 @@ function update ()
 
 function flapNow(){
     if(gameOver) return;
+
+    if(isPaused) resume();
     // console.log("flap")
     player.setVelocityY(-330);
     game.sound.play("flap");
@@ -207,7 +207,17 @@ function playerDead() {
 
 function endGame() {
     gameOver= true;
-    game.scene.pause("default")
+    pause();
     console.log("game paused")
     player.y =450
+}
+function pause(obj = game) {
+    console.log("pause")
+    isPaused = true;
+    obj.scene.pause("default");
+}
+function resume(obj = game) {
+    console.log("resume")
+    isPaused = false;
+    obj.scene.resume("default");
 }
