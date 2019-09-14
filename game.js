@@ -19,6 +19,8 @@ const pipeWidth = 52;
 var game = new Phaser.Game(config);
 var isPaused = false,
     gameOver = false;
+var score = 0;
+var birdyX = 200;
 function preload ()
 {
     this.load.image('sky', 'assets/sky.png');
@@ -29,14 +31,23 @@ function preload ()
         'assets/birdy.png',
         { frameWidth: 34, frameHeight: 24 }
     );
+
+    this.load.audio('flap', './assets/sounds/sfx_wing.ogg');
+    this.load.audio('hit', './assets/sounds/sfx_hit.ogg');
+    this.load.audio('die', './assets/sounds/sfx_die.ogg');
+    this.load.audio('score', './assets/sounds/sfx_point.ogg');
 }
-var platforms,spacebar,player;
+var platforms,spacebar,player,scoreText;
 var gap = 150;
+var music;
 function create ()
 {
     this.add.image(400, 300, 'sky');
 //    this.add.image(400, 300, 'star');
     // this.physics.world.setBoundsCollision(true, true, true, false);
+
+    //Add score text
+    scoreText = this.add.text(birdyX, 100,score,{ fontFamily: '"04b19"', fontSize: 60, color: '#fff' });
     
     platforms = this.physics.add.staticGroup();
     // bottom placable at 260+gap to height
@@ -47,7 +58,7 @@ function create ()
     platforms.create(game.canvas.width*2, pos[0], 'pipeb').setScale(1).refreshBody();
     platforms.create(game.canvas.width*2, pos[1], 'pipet').setScale(1).refreshBody();
 
-    player = this.physics.add.sprite(100, 450, 'birdy');
+    player = this.physics.add.sprite(birdyX, 450, 'birdy');
 
     player.setBounce(0.2);
     player.setCollideWorldBounds(true);
@@ -61,7 +72,9 @@ function create ()
 
     player.body.setGravityY(300)
 
-    this.physics.add.collider(player, platforms, playerDead, null, game)
+
+
+    this.physics.add.collider(player, platforms, playerHit, null, game)
 
 
     spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
@@ -70,6 +83,7 @@ function create ()
 
     //  Stop the following keys from propagating up to the browser
     // this.input.keyboard.addKeyCapture([Phaser.Input.Keyboard.KeyCodes.SPACE ]);
+
 }
 
 function getRandom() {
@@ -107,27 +121,63 @@ function update ()
                     platforms.create(game.canvas.width+50, pos[1], 'pipet').setScale(1).refreshBody();
                     countpipe=0;
                 }
-                
+
                 // child.x = game.canvas.width+pipeWidth;
                 // child.y = getRandom()[0];
             }
+
+            //check if pipe passed bird (birdyX)
+            // if(child.texture.key=="pipeb"){
+            //     console.log("x: ",child.x)
+            // }
+            if(child.x< birdyX && !gameOver && child.texture.key=="pipeb" && !child.scored){ //only check one pipe
+                child.scored = true
+                score+=1;
+                scoreText.setText(score)
+                game.sound.play("score");
+                console.log("score:",score);
+            }
         }
     });
-
-    if(!gameOver && player.y < game.canvas.height+50) {
-        gameOver= true;
-
+    //set lower Bounds
+    // console.log("y= ",player.y)
+    if(player.y > Number(game.canvas.height)+200) {
+        console.log("y= ",player.y)
+        endGame();
+    }
+    //set upper Bounds
+    if(player.y < -200) {
+        console.log("y= ",player.y)
+        endGame();
     }
 }
 
 function flapNow(){
-    if(isPaused) return;
-    console.log("flap")
+    if(gameOver) return;
+    // console.log("flap")
     player.setVelocityY(-330);
-    player.anims.play('flap', true);
+    game.sound.play("flap");
 }
+var hitflag = false;
+function playerHit() {
+    if(hitflag) return
+    console.log("Player hit!!!!!!!!!")
+    var hitSound = game.sound.play("hit");
+    hitflag=true;
+    setTimeout(playerDead, 200)
+}
+
 function playerDead() {
     console.log("Player dead!!!!!!!!!")
+    game.sound.play("die");
     player.setCollideWorldBounds(false);
-    isPaused =  true;
+    gameOver =  true;
+}
+
+
+function endGame() {
+    gameOver= true;
+    game.scene.pause("default")
+    console.log("game paused")
+    player.y =450
 }
