@@ -80,6 +80,7 @@ function create ()
     spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     // spacebar.onDown.add(flapNow, this);
     this.input.keyboard.on('keydown-' + 'SPACE', flapNow);
+    this.input.on('pointerdown', flapNow); //touch support
 
     //  Stop the following keys from propagating up to the browser
     // this.input.keyboard.addKeyCapture([Phaser.Input.Keyboard.KeyCodes.SPACE ]);
